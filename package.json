@@ -1,0 +1,21 @@
+{
+  "name": "mdbookcli",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "clear": "^0.1.0",
+    "figlet": "^1.5.2",
+    "inquirer": "^8.2.4"
+  },
+  "directories": {
+    "example": "example"
+  },
+  "devDependencies": {},
+  "description": ""
+}
