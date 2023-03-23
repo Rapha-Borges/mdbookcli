@@ -21,6 +21,7 @@ const path = require('path');
 const { exec } = require('child_process');
 
 const readline = require('readline');
+const { exit } = require('process');
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -112,68 +113,65 @@ function askQuestions() {
 
 askQuestions().then(() => {
     // Create the book directory
-    fs.mkdir('final', { recursive: true }, (err) => {
+    fs.mkdir('book', { recursive: true }, (err) => {
         if (err) throw err;
-        console.log('final directory created');
+        console.log('book directory created');
     });
 
     // Create the src directory
-    fs.mkdir('final/src', { recursive: true }, (err) => {
+    fs.mkdir('book/src', { recursive: true }, (err) => {
         if (err) throw err;
-        console.log('final/src directory created');
+        console.log('book/src directory created');
     });
 
     // Create the book.toml file
-    fs.writeFile('final/book.toml', `
-    [book]
-    authors = ["${responses.book_author}"]
-    language = "${responses.book_language}"
-    description = "${responses.book_description}"
-    language = "${responses.book_language}"
-    multilingual = false
-    src = "src"
-    title = "${responses.book_name}"
+    fs.writeFile('book/book.toml', `[book]
+authors = ["${responses.book_author}"]
+language = "${responses.book_language}"
+description = "${responses.book_description}"
+language = "${responses.book_language}"
+multilingual = false
+src = "src"
+title = "${responses.book_name}"
 
-    [output.html]
-    git-repository-url = "${responses.book_git}"
-    edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
-    CNAMES = ["${responses.book_domain_name}"]
-    additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
-    favicon = "favicon.ico"
+[output.html]
+git-repository-url = "${responses.book_git}"
+edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
+CNAMES = ["${responses.book_domain_name}"]
+additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
+favicon = "favicon.ico"
 
-    [[output.i18n.translations]]
-    language = "${responses.book_translations_language}"
-    title = "${responses.book_translations_title}"
-    src = "translations/${responses.book_translations_language}"
+[[output.i18n.translations]]
+language = "${responses.book_translations_language}"
+title = "${responses.book_translations_title}"
+src = "translations/${responses.book_translations_language}"
 
-    [output.html.search]
-    limit-results = 20
-    use-boolean-and = true
-    boost-title = 2
-    boost-hierarchy = 2
-    boost-paragraph = 1
-    expand = true
-    heading-split-level = 2
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
 
-    [preprocessor]
+[preprocessor]
 
-    [preprocessor.admonish]
-    command = "mdbook-admonish"
-    assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
 
-    [output.html.fold]
-    enable = true    # whether or not to enable section folding
-    level = 0         # the depth to start folding
-    `, function (err) {
+[output.html.fold]
+enable = true    # whether or not to enable section folding
+level = 0         # the depth to start folding
+`, function (err) {
         if (err) throw err;
         console.log('book.toml file created');
     }
     );
 
     // Create the .gitignore file
-    fs.writeFile('final/.gitignore', `
-    book
-    `, function (err) {
+    fs.writeFile('book/.gitignore', `book`, function (err) {
         if (err) throw err;
         console.log('.gitignore file created');
     }
@@ -181,17 +179,15 @@ askQuestions().then(() => {
 
     // Create the number of characters folder specified by the user as characters
     for (let i = 0; i < responses.book_chapters; i++) {
-        fs.mkdirSync(`final/src/chapter-${i + 1}`, { recursive: true }, (err) => {
+        fs.mkdirSync(`book/src/chapter-${i + 1}`, { recursive: true }, (err) => {
             if (err) throw err;
-            console.log(`final/src/chapter-${i + 1} directory created`);
+            console.log(`book/src/chapter-${i + 1} directory created`);
         });
     }
 
     // Create the README.md files inside src/charapter${i} folder
     for (let i = 0; i < responses.book_chapters; i++) {
-        fs.writeFile(`final/src/chapter-${i + 1}/README.md`, `
-        # Chapter ${i + 1}
-        `, function (err) {
+        fs.writeFile(`book/src/chapter-${i + 1}/README.md`, `# Chapter ${i + 1}`, function (err) {
             if (err) throw err;
             console.log(`Chapter ${i + 1} README.md file created`);
         }
@@ -200,50 +196,45 @@ askQuestions().then(() => {
 
     // Create the files folder inside src/charapter${i} folder
     for (let i = 0; i < responses.book_chapters; i++) {
-        fs.mkdirSync(`final/src/chapter-${i + 1}/files`, { recursive: true }, (err) => {
+        fs.mkdirSync(`book/src/chapter-${i + 1}/files`, { recursive: true }, (err) => {
             if (err) throw err;
-            console.log(`final/src/chapter${i + 1}/files directory created`);
+            console.log(`book/src/chapter${i + 1}/files directory created`);
         });
     }
 
     // Create the image folder inside src/charapter${i} folder
     for (let i = 0; i < responses.book_chapters; i++) {
-        fs.mkdirSync(`final/src/chapter-${i + 1}/images`, { recursive: true }, (err) => {
+        fs.mkdirSync(`book/src/chapter-${i + 1}/images`, { recursive: true }, (err) => {
             if (err) throw err;
-            console.log(`final/src/chapter${i + 1}/images directory created`);
+            console.log(`book/src/chapter${i + 1}/images directory created`);
         });
     }
 
     // Create the README.md file
-    fs.writeFile('final/src/README.md', `
-        # ${responses.book_name}
-    
-        ${responses.book_description}
-        `, function (err) {
+    fs.writeFile('book/src/README.md', `# ${responses.book_name}
+`, function (err) {
         if (err) throw err;
-        console.log('final/src/README.md file created');
+        console.log('book/src/README.md file created');
     }
     );
 
     // Create the SUMMARY.md file
-    fs.writeFile('final/src/SUMMARY.md', `
-        # Summary
-    
-        - [Home](./home.md)
-        `, function (err) {
+    fs.writeFile('book/src/SUMMARY.md', `# Summary
+
+- [Home](./home.md)
+    `, function (err) {
         if (err) throw err;
-        console.log('final/SUMMARY.md file created');
+        console.log('book/SUMMARY.md file created');
     }
     );
 
     // Create the BOOKSUMMARY.md file
-    fs.writeFile('final/src/BOOKSUMMARY.md', `
-        #[About](README.md)
-        
-        #[Chapter 1](src/chapter-1/README.md)
-    
-        #[Chapter 2](src/chapter-2/README.md)
-        `, function (err) {
+    fs.writeFile('book/src/BOOKSUMMARY.md', `#[About](README.md)
+
+#[Chapter 1](src/chapter-1/README.md)
+
+#[Chapter 2](src/chapter-2/README.md)
+    `, function (err) {
         if (err) throw err;
         console.log('BOOKSUMMARY.md file created');
     }
@@ -252,83 +243,71 @@ askQuestions().then(() => {
     // If the user wants to create a translation run this part of the script
     if (responses.book_translations === 'yes' || responses.book_translations === 'Yes' || responses.book_translations === 'YES' || responses.book_translations === 'y' || responses.book_translations === 'Y') {
         // Create the translations directory
-        fs.mkdir('final/src/translations', { recursive: true }, (err) => {
+        fs.mkdir('book/src/translations', { recursive: true }, (err) => {
             if (err) throw err;
-            console.log('final/src/translations directory created');
+            console.log('book/src/translations directory created');
         });
 
         // Create the translations language directory
-
-        fs.mkdir(`final/src/translations/${responses.book_translations_language}`, { recursive: true }, (err) => {
+        fs.mkdir(`book/src/translations/${responses.book_translations_language}`, { recursive: true }, (err) => {
             if (err) throw err;
-            console.log(`final/src/translations/${responses.book_translations_language} directory created`);
+            console.log(`book/src/translations/${responses.book_translations_language} directory created`);
         });
 
         // Create the translations language number of chapters folder specified by the user as characters
         for (let i = 0; i < responses.book_chapters; i++) {
-            fs.mkdir(`final/src/translations/${responses.book_translations_language}/chapter-${i + 1}`, { recursive: true }, (err) => {
+            fs.mkdir(`book/src/translations/${responses.book_translations_language}/chapter-${i + 1}`, { recursive: true }, (err) => {
                 if (err) throw err;
-                console.log(`final/src/translations/${responses.book_translations_language}/chapter-${i + 1} directory created`);
+                console.log(`book/src/translations/${responses.book_translations_language}/chapter-${i + 1} directory created`);
             });
         }
 
         // Create the translations language files folder inside src/translations/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            fs.mkdir(`final/src/translations/${responses.book_translations_language}/chapter-${i + 1}/files`, { recursive: true }, (err) => {
+            fs.mkdir(`book/src/translations/${responses.book_translations_language}/chapter-${i + 1}/files`, { recursive: true }, (err) => {
                 if (err) throw err;
-                console.log(`final/src/translations/${responses.book_translations_language}/chapter${i + 1}/files directory created`);
+                console.log(`book/src/translations/${responses.book_translations_language}/chapter${i + 1}/files directory created`);
             });
         }
 
         // Create the translations language image folder inside src/translations/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            fs.mkdir(`final/src/translations/${responses.book_translations_language}/chapter-${i + 1}/images`, { recursive: true }, (err) => {
+            fs.mkdir(`book/src/translations/${responses.book_translations_language}/chapter-${i + 1}/images`, { recursive: true }, (err) => {
                 if (err) throw err;
-                console.log(`final/src/translations/${responses.book_translations_language}/chapter${i + 1}/images directory created`);
+                console.log(`book/src/translations/${responses.book_translations_language}/chapter${i + 1}/images directory created`);
             });
         }
 
-        // Create the translations language README.md file
-
-        fs.writeFile(`final/src/translations/${responses.book_translations_language}/README.md`, `
-        # ${responses.book_translations_title}
-
-        ${responses.book_translations_description}
-        `, function (err) {
-            if (err) throw err;
-            console.log(`final/src/translations/${responses.book_translations_language}/README.md file created`);
+        // Create the directory book/src/translations/${language}/ if it doesn't exist then create the README.md file
+        if (!fs.existsSync(`book/src/translations/${responses.book_translations_language}/README.md`)) {
+            fs.writeFile(`book/src/translations/${responses.book_translations_language}/README.md`, `# ${responses.book_name}`, function (err) {
+                if (err) throw err;
+                console.log(`book/src/translations/${responses.book_translations_language}/README.md file created`);
+            }
+            );
         }
-        );
 
-        // Create the translations language SUMMARY.md file
-
-        fs.writeFile(`final/src/translations/${responses.book_translations_language}/SUMMARY.md`, `
-        # Summary
-
-        - [Home](./home.md)
-        `, function (err) {
-            if (err) throw err;
-            console.log(`final/src/translations/${responses.book_translations_language}/SUMMARY.md file created`);
+        // Create the directory book/src/translations/${language}/ if it doesn't exist then create the SUMMARY.md file
+        if (!fs.existsSync(`book/src/translations/${responses.book_translations_language}/SUMMARY.md`)) {
+            fs.writeFile(`book/src/translations/${responses.book_translations_language}/SUMMARY.md`, `# Summary`, function (err) {
+                if (err) throw err;
+                console.log(`book/src/translations/${responses.book_translations_language}/SUMMARY.md file created`);
+            }
+            );
         }
-        );
 
-        // Create the translations language BOOKSUMMARY.md file
-
-        fs.writeFile(`final/src/translations/${responses.book_translations_language}/BOOKSUMMARY.md`, `
-        #[About](README.md)
-
-        #[Chapter 1](final/src/translations/${responses.book_translations_language}/chapter-1/README.md)
-        #[Chapter 2](final/src/translations/${responses.book_translations_language}/chapter-2/README.md)
-        `, function (err) {
-            if (err) throw err;
-            console.log(`final/src/translations/${responses.book_translations_language}/BOOKSUMMARY.md file created`);
+        // Create the directory book/src/translations/${language}/ if it doesn't exist then create the BOOKSUMMARY.md file
+        if (!fs.existsSync(`book/src/translations/${responses.book_translations_language}/BOOKSUMMARY.md`)) {
+            fs.writeFile(`book/src/translations/${responses.book_translations_language}/BOOKSUMMARY.md`, `#[About](README.md)`, function (err) {
+                if (err) throw err;
+                console.log(`book/src/translations/${responses.book_translations_language}/BOOKSUMMARY.md file created`);
+            }
+            );
         }
-        );
-
+        
         // Create the translations language README.md files inside src/translatios/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            fs.writeFile(`final/src/translations/${responses.book_translations_language}/chapter-${i + 1}/README.md`, `
-        # Chapter ${i + 1}
+            fs.writeFile(`book/src/translations/${responses.book_translations_language}/chapter-${i + 1}/README.md`, `# Chapter ${i + 1}
         `, function (err) {
                 if (err) throw err;
                 console.log(`Chapter ${i + 1} README.md file created`);
@@ -355,5 +334,8 @@ function copyDir(src, dest) {
 // Copy the example/home folder to the / folder
 copyDir('example/home', './home');
 
-// Copy the example/theme folder to the /final/theme folder
-copyDir('example/theme', 'final/theme');
+// Copy the example/theme folder to the /book/theme folder
+copyDir('example/theme', 'book/theme');
+
+// Copy the .github folder and all its content and subfolders to the root folder
+copyDir('example/.github', './.github');

@@ -1,6 +1,7 @@
+/node_modules
+/home
+/book
+/.github
 package.json
 package-lock.json
-node_modules
-final
-home
 dockerfile
