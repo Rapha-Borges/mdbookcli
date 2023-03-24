@@ -1,21 +1,35 @@
 {
-  "name": "mdbookcli",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "clear": "^0.1.0",
-    "figlet": "^1.5.2",
-    "inquirer": "^8.2.4"
-  },
-  "directories": {
-    "example": "example"
-  },
-  "devDependencies": {},
-  "description": ""
+	"name": "mdbookcli",
+	"version": "1.0.0",
+	"main": "index.js",
+	"bin": {
+		"index": "./index.js"
+	},
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"clear": "^0.1.0",
+		"figlet": "^1.5.2",
+		"inquirer": "^8.2.4",
+		"pkg": "^5.8.1"
+	},
+	"directories": {
+		"example": "example"
+	},
+	"pkg": {
+		"scripts": ["index.js"],
+		"assets": [
+			"node_modules/figlet/fonts/Standard.flf"
+		],
+		"targets": [
+			"node12-linux-x64",
+			"node12-macos-x64",
+			"node12-win-x86"
+		]
+	},
+	"description": ""
 }
