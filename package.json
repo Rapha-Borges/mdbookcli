@@ -14,14 +14,15 @@
 	"dependencies": {
 		"clear": "^0.1.0",
 		"figlet": "^1.5.2",
-		"inquirer": "^8.2.4",
 		"pkg": "^5.8.1"
 	},
 	"directories": {
 		"example": "example"
 	},
 	"pkg": {
-		"scripts": ["index.js"],
+		"scripts": [
+			"index.js"
+		],
 		"assets": [
 			"node_modules/figlet/fonts/Standard.flf"
 		],
