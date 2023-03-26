@@ -21,6 +21,19 @@ const rl = readline.createInterface({
     output: process.stdout
 });
 
+const questions = [
+    { key: 'book_name', text: 'What is the name of your book?' },
+    { key: 'book_author', text: 'What is the author of your book?' },
+    { key: 'book_description', text: 'What is the description of your book?' },
+    { key: 'book_chapters', text: 'How many chapters does your book have?' },
+    { key: 'book_git', text: 'What is the git repository of your book?' },
+    { key: 'book_language', text: 'What is the language of your book?' },
+    { key: 'book_domain', text: 'Do you have a domain name for your book (Y/N)?' },
+    { key: 'book_translations', text: 'Do you want to add translations to your book (Y/N)?' },
+];
+
+let responses = {};
+
 // Functions
 
 // Function to create a directory receiving a path as parameter that can be used to create a directory in any place
@@ -34,16 +47,19 @@ function createDirectory(path, dirname) {
     }
 }
 
-// Function to create a file receiving a path and a filename as parameter that can be used to create a file in any place
-function createFile(path, filename) {
+// Function to create a file receiving a path, a filename and a optional content as parameter that can be used to create a file in any place
+function createFile(path, filename, content) {
     const filePath = `${path}/${filename}`;
     if (!fs.existsSync(filePath)) {
-        fs.writeFileSync(filePath, '');
-        console.log(`File '${filename}' created in '${path}'`);
+        fs.writeFile(filePath, content, function (err) {
+            if (err) throw err;
+            console.log(`File '${filename}' created in '${path}'`);
+        });
     } else {
         console.log(`File '${filename}' already exists in '${path}'`);
     }
 }
+
 
 // Function to copy directories
 function copyDir(src, dest) {
@@ -59,34 +75,74 @@ function copyDir(src, dest) {
     });
 }
 
+// Function to check if the files and folders were created
+function checkFilesAndFolders() {
+    // Check if the README.md file was created
+    if (fs.existsSync('output/book/src/README.md')) {
+        console.log('README.md file created');
+    }
+
+    // Check if the SUMMARY.md file was created
+    if (fs.existsSync('output/book/src/SUMMARY.md')) {
+        console.log('SUMMARY.md file created');
+    }
+
+    // Check if the BOOKSUMMARY.md file was created
+    if (fs.existsSync('output/book/src/BOOKSUMMARY.md')) {
+        console.log('BOOKSUMMARY.md file created');
+    }
+
+    // Check if the chapters folders were created
+    for (let i = 0; i < responses.book_chapters; i++) {
+        if (fs.existsSync(`output/book/src/chapter-${i + 1}`)) {
+            console.log(`chapter-${i + 1} folder created`);
+        }
+    }
+
+    // Check if the files folders were created
+    for (let i = 0; i < responses.book_chapters; i++) {
+        if (fs.existsSync(`output/book/src/chapter-${i + 1}/files`)) {
+            console.log(`chapter-${i + 1}/files folder created`);
+        }
+    }
+
+    // Check if the images folders were created
+    for (let i = 0; i < responses.book_chapters; i++) {
+        if (fs.existsSync(`output/book/src/chapter-${i + 1}/images`)) {
+            console.log(`chapter-${i + 1}/images folder created`);
+        }
+    }
+
+    // Check if the README.md files were created
+    for (let i = 0; i < responses.book_chapters; i++) {
+        if (fs.existsSync(`output/book/src/chapter-${i + 1}/README.md`)) {
+            console.log(`chapter-${i + 1}/README.md file created`);
+        }
+    }
+
+    // Check if the translations folder was created
+    if (fs.existsSync('output/book/src/translations')) {
+        console.log('translations folder created');
+    }
+
+    // Check if the translations language folder was created
+    if (fs.existsSync(`output/book/src/translations/${responses.book_translations_language}`)) {
+        console.log(`${responses.book_translations_language} folder created`);
+    }
+
+    // If the book.toml file was created run the function to finish the script
+    if (fs.existsSync('output/book/book.toml')) {
+        console.log('All files and folders created');
+        finish();
+    }
+
+}
+
 // Function to finish the process
 function finish() {
     console.log(chalk.green('You can start writing your book!'));
     rl.close();
 }
-
-// Clear the terminal
-clear();
-
-// Print the title
-console.log(
-    chalk.yellow(
-        figlet.textSync('   EBOOK GENERATOR', { horizontalLayout: 'full' })
-    )
-);
-
-const questions = [
-    { key: 'book_name', text: 'What is the name of your book?' },
-    { key: 'book_author', text: 'What is the author of your book?' },
-    { key: 'book_description', text: 'What is the description of your book?' },
-    { key: 'book_chapters', text: 'How many chapters does your book have?' },
-    { key: 'book_git', text: 'What is the git repository of your book?' },
-    { key: 'book_language', text: 'What is the language of your book?' },
-    { key: 'book_domain', text: 'Do you have a domain name for your book (Y/N)?' },
-    { key: 'book_translations', text: 'Do you want to add translations to your book (Y/N)?' },
-];
-
-let responses = {};
 
 // Function to ask the all the firts questions. If the user answer 'Y' or 'y' to the question 'Do you have a domain name for your book (Y/N)?' and 'Do you want to add translations to your book (Y/N)?' the function will ask the next question 'What is the language of your translation?' and 'What is the book title of your translation?' and 'What is the book description of your translation?' and 'What is the domain name of your book?' and save the answers in the responses object whit the key 'book_translations_language' and 'book_translations_title' and 'book_translations_description' and 'book_domain_name' whit all the other answers inside the let responses = {}; object
 function askQuestions() {
@@ -276,67 +332,14 @@ level = 0         # the depth to start folding
     copyDir('example/.github', 'output/.github');
 }
 
-// Function to check if the files and folders were created
-function checkFilesAndFolders() {
-    // Check if the README.md file was created
-    if (fs.existsSync('output/book/src/README.md')) {
-        console.log('README.md file created');
-    }
+// Clear the terminal
+clear();
 
-    // Check if the SUMMARY.md file was created
-    if (fs.existsSync('output/book/src/SUMMARY.md')) {
-        console.log('SUMMARY.md file created');
-    }
-
-    // Check if the BOOKSUMMARY.md file was created
-    if (fs.existsSync('output/book/src/BOOKSUMMARY.md')) {
-        console.log('BOOKSUMMARY.md file created');
-    }
-
-    // Check if the chapters folders were created
-    for (let i = 0; i < responses.book_chapters; i++) {
-        if (fs.existsSync(`output/book/src/chapter-${i + 1}`)) {
-            console.log(`chapter-${i + 1} folder created`);
-        }
-    }
-
-    // Check if the files folders were created
-    for (let i = 0; i < responses.book_chapters; i++) {
-        if (fs.existsSync(`output/book/src/chapter-${i + 1}/files`)) {
-            console.log(`chapter-${i + 1}/files folder created`);
-        }
-    }
-
-    // Check if the images folders were created
-    for (let i = 0; i < responses.book_chapters; i++) {
-        if (fs.existsSync(`output/book/src/chapter-${i + 1}/images`)) {
-            console.log(`chapter-${i + 1}/images folder created`);
-        }
-    }
-
-    // Check if the README.md files were created
-    for (let i = 0; i < responses.book_chapters; i++) {
-        if (fs.existsSync(`output/book/src/chapter-${i + 1}/README.md`)) {
-            console.log(`chapter-${i + 1}/README.md file created`);
-        }
-    }
-
-    // Check if the translations folder was created
-    if (fs.existsSync('output/book/src/translations')) {
-        console.log('translations folder created');
-    }
-
-    // Check if the translations language folder was created
-    if (fs.existsSync(`output/book/src/translations/${responses.book_translations_language}`)) {
-        console.log(`${responses.book_translations_language} folder created`);
-    }
-
-    // If the book.toml file was created run the function to finish the script
-    if (fs.existsSync('output/book/book.toml')) {
-        console.log('All files and folders created');
-        finish();
-    }
-
-}
+// Print the title
+console.log(
+    chalk.yellow(
+        figlet.textSync('   EBOOK GENERATOR', { horizontalLayout: 'full' })
+    )
+);
 
 askQuestions().then(createBook).then(checkFilesAndFolders);
