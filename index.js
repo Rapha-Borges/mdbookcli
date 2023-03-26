@@ -217,7 +217,6 @@ function createBook() {
 authors = ["${responses.book_author}"]
 language = "${responses.book_language}"
 description = "${responses.book_description}"
-language = "${responses.book_language}"
 multilingual = false
 src = "src"
 title = "${responses.book_name}"
@@ -227,12 +226,11 @@ git-repository-url = "${responses.book_git}"
 edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
 CNAMES = ["${responses.book_domain_name}"]
 additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
-favicon = "favicon.ico"
 
 [[output.i18n.translations]]
 language = "${responses.book_translations_language}"
 title = "${responses.book_translations_title}"
-src = "translations/${responses.book_translations_language}"
+src = "src/translations/${responses.book_translations_language}"
 
 [output.html.search]
 limit-results = 20
@@ -281,10 +279,14 @@ level = 0         # the depth to start folding
     createFile('output/book/src', 'README.md', `# ${responses.book_name}`);
 
     // Create the SUMMARY.md file
-    createFile('output/book/src', 'SUMMARY.md', `# Summary, - [About](README.md), - [Chapter 1](chapter-1/README.md), - [Chapter 2](chapter-2/README.md)`);
+    createFile('output/book/src', 'SUMMARY.md', `# Summary
+    
+- [About](README.md)`);
 
     // Create the BOOKSUMMARY.md file
-    createFile('output/book/src', 'BOOKSUMMARY.md', `# Summary, - [About](README.md), - [Chapter 1](chapter-1/README.md), - [Chapter 2](chapter-2/README.md)`);
+    createFile('output/book/src', 'BOOKSUMMARY.md', `# Summary
+
+- [About](README.md)`);
 
     // If the user wants to create a translation run this part of the script
     if (responses.book_translations === 'yes' || responses.book_translations === 'Yes' || responses.book_translations === 'YES' || responses.book_translations === 'y' || responses.book_translations === 'Y') {
@@ -312,10 +314,14 @@ level = 0         # the depth to start folding
         createFile(`output/book/src/translations/${responses.book_translations_language}`, 'README.md', `# ${responses.book_name}`);
 
         // Create the SUMMARY.md file at directory book/src/translations/${responses.book_translations_language}
-        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'SUMMARY.md', `# Summary, - [About](README.md), - [Chapter 1](chapter-1/README.md), - [Chapter 2](chapter-2/README.md)`);
+        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'SUMMARY.md', `# Summary
+
+- [About](README.md)`);
 
         // Create the BOOKSUMMARY.md file at directory book/src/translations/${responses.book_translations_language}
-        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'BOOKSUMMARY.md', `# Summary, - [About](README.md), - [Chapter 1](chapter-1/README.md), - [Chapter 2](chapter-2/README.md)`);
+        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'BOOKSUMMARY.md', `# Summary
+
+[About](README.md)`);
 
         // Create the translations language README.md files inside output/book/src/translatios/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
@@ -323,7 +329,7 @@ level = 0         # the depth to start folding
         }
     }
     // Copy the example/home folder to the / folder
-    copyDir('example/home', 'output//home');
+    copyDir('example/home', 'output/home');
 
     // Copy the example/theme folder to the /book/theme folder
     copyDir('example/theme', 'output/book/theme');
