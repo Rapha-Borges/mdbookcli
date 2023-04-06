@@ -1,10 +1,4 @@
-// Interactive CLI with  Node.js for create a book using a mdbook template builded by me
-// Its create all directories and files for you
-// Its creates the number of chapters according to what is answered in the question 'How many chapters does your book have?'
-// Its create all the files needed for the book
-// Its import the index.hbs present at example/theme/index.hbs and css file at example/theme/css/*
-// Its create the home page whit the files present at example/home/*
-// It's add the GitHub Actions to deploy the book in GitHub Pages
+// Interactive CLI with  Node.js for create a book using a mdbook template
 
 // Importing the modules
 const fs = require('fs');
@@ -15,7 +9,6 @@ const path = require('path');
 const { exec } = require('child_process');
 const readline = require('readline');
 const { exit } = require('process');
-
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
@@ -60,6 +53,85 @@ function createFile(path, filename, content) {
     }
 }
 
+// Function to create the book.toml 
+function createBookTomlFile() {
+    fs.writeFile('output/book/book.toml', `[book]
+authors = ["${responses.book_author}"]
+language = "${responses.book_language}"
+description = "${responses.book_description}"
+multilingual = false
+src = "src"
+title = "${responses.book_name}"
+
+[output.html]
+git-repository-url = "${responses.book_git}"
+edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
+CNAMES = ["${responses.book_domain_name}"]
+additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
+additional-js = ["theme/js/script.js"]
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
+
+[preprocessor]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
+
+[output.html.fold]
+enable = true    # whether or not to enable section folding
+level = 0         # the depth to start folding
+`, function (err) {
+        if (err) throw err;
+        console.log('book.toml file created');
+    });
+}
+
+// Function to create the book.toml for multilingual books
+function createBookTomlFileMultilingual() {
+    fs.writeFile('output/book/book.toml', `[book]
+authors = ["${responses.book_author}"]
+language = "${responses.book_language}"
+description = "${responses.book_description}"
+multilingual = false
+src = "src"
+title = "${responses.book_name}"
+
+[output.html]
+git-repository-url = "${responses.book_git}"
+edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
+CNAMES = ["${responses.book_domain_name}"]
+additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
+additional-js = ["theme/js/script.js"]
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
+
+[preprocessor]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
+[output.html.fold]
+enable = true    # whether or not to enable section folding
+level = 0         # the depth to start folding`, function (err) {
+        if (err) throw err;
+        console.log('book.toml file created');
+    });
+}
 
 // Function to copy directories
 function copyDir(src, dest) {
@@ -209,51 +281,18 @@ function createBook() {
     // Create the book directory
     createDirectory('output', 'book');
 
+    // Create the directory for the language specified by the user
+    createDirectory('output/book/', responses.book_language);
+
     // Create the src directory
     createDirectory('output/book', 'src');
 
     // Create the book.toml file
-    fs.writeFile('output/book/book.toml', `[book]
-authors = ["${responses.book_author}"]
-language = "${responses.book_language}"
-description = "${responses.book_description}"
-multilingual = false
-src = "src"
-title = "${responses.book_name}"
-
-[output.html]
-git-repository-url = "${responses.book_git}"
-edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
-CNAMES = ["${responses.book_domain_name}"]
-additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
-
-[[output.i18n.translations]]
-language = "${responses.book_translations_language}"
-title = "${responses.book_translations_title}"
-src = "src/translations/${responses.book_translations_language}"
-
-[output.html.search]
-limit-results = 20
-use-boolean-and = true
-boost-title = 2
-boost-hierarchy = 2
-boost-paragraph = 1
-expand = true
-heading-split-level = 2
-
-[preprocessor]
-
-[preprocessor.admonish]
-command = "mdbook-admonish"
-assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
-
-[output.html.fold]
-enable = true    # whether or not to enable section folding
-level = 0         # the depth to start folding
-`, function (err) {
-        if (err) throw err;
+    if (responses.book_translations.toLowerCase() === 'y' || responses.book_translations.toLowerCase() === 'yes') {
+        createBookTomlFileMultilingual();
+    } else {
+        createBookTomlFile();
     }
-    );
 
     // Create the number of characters folder specified by the user as characters
     for (let i = 0; i < responses.book_chapters; i++) {
@@ -280,7 +319,7 @@ level = 0         # the depth to start folding
 
     // Create the SUMMARY.md file
     createFile('output/book/src', 'SUMMARY.md', `# Summary
-    
+
 - [About](README.md)`);
 
     // Create the BOOKSUMMARY.md file
@@ -289,43 +328,40 @@ level = 0         # the depth to start folding
 - [About](README.md)`);
 
     // If the user wants to create a translation run this part of the script
-    if (responses.book_translations === 'yes' || responses.book_translations === 'Yes' || responses.book_translations === 'YES' || responses.book_translations === 'y' || responses.book_translations === 'Y') {
-        // Create the translations directory
-        createDirectory('output/book/src', 'translations');
-
+    if (responses.book_translations.toLowerCase() === 'y' || responses.book_translations.toLowerCase() === 'yes') {
         // Create the translations language directory
-        createDirectory('output/book/src/translations', responses.book_translations_language);
+        createDirectory('output/book/src/', responses.book_translations_language);
 
         // Create the translations language number of chapters folder specified by the user as characters
         for (let i = 0; i < responses.book_chapters; i++) {
-            createDirectory(`output/book/src/translations/${responses.book_translations_language}`, `chapter-${i + 1}`);
+            createDirectory(`output/book/src/${responses.book_translations_language}`, `chapter-${i + 1}`);
         }
 
-        // Create the translations language files folder inside src/translations/${language}/charapter${i} folder
+        // Create the translations language files folder inside src/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            createDirectory(`output/book/src/translations/${responses.book_translations_language}/chapter-${i + 1}`, 'files');
+            createDirectory(`output/book/src/${responses.book_translations_language}/chapter-${i + 1}`, 'files');
         }
 
-        // Create the translations language image folder inside src/translations/${responses.book_translations_language}/charapter${i} folder
+        // Create the translations language image folder inside src/${responses.book_translations_language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            createDirectory(`output/book/src/translations/${responses.book_translations_language}/chapter-${i + 1}`, 'images');
+            createDirectory(`output/book/src/${responses.book_translations_language}/chapter-${i + 1}`, 'images');
         }
-        // Create the README.md file inside directory book/src/translations/${responses.book_translations_language}
-        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'README.md', `# ${responses.book_name}`);
+        // Create the README.md file inside directory book/src/${responses.book_translations_language}
+        createFile(`output/book/src/${responses.book_translations_language}`, 'README.md', `# ${responses.book_name}`);
 
-        // Create the SUMMARY.md file at directory book/src/translations/${responses.book_translations_language}
-        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'SUMMARY.md', `# Summary
+        // Create the SUMMARY.md file at directory book/src/${responses.book_translations_language}
+        createFile(`output/book/src/${responses.book_translations_language}`, 'SUMMARY.md', `# Summary
 
 - [About](README.md)`);
 
-        // Create the BOOKSUMMARY.md file at directory book/src/translations/${responses.book_translations_language}
-        createFile(`output/book/src/translations/${responses.book_translations_language}`, 'BOOKSUMMARY.md', `# Summary
+        // Create the BOOKSUMMARY.md file at directory book/src/${responses.book_translations_language}
+        createFile(`output/book/src/${responses.book_translations_language}`, 'BOOKSUMMARY.md', `# Summary
 
 [About](README.md)`);
 
-        // Create the translations language README.md files inside output/book/src/translatios/${language}/charapter${i} folder
+        // Create the translations language README.md files inside output/book/src/${language}/charapter${i} folder
         for (let i = 0; i < responses.book_chapters; i++) {
-            createFile(`output/book/src/translations/${responses.book_translations_language}/chapter-${i + 1}`, 'README.md', `# Chapter ${i + 1}`);
+            createFile(`output/book/src/${responses.book_translations_language}/chapter-${i + 1}`, 'README.md', `# Chapter ${i + 1}`);
         }
     }
     // Copy the example/home folder to the / folder

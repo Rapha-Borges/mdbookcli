@@ -1,0 +1,38 @@
+[book]
+authors = ["${responses.book_author}"]
+language = "${responses.book_language}"
+description = "${responses.book_description}"
+multilingual = false
+src = "src"
+title = "${responses.book_name}"
+
+[output.html]
+git-repository-url = "${responses.book_git}"
+edit-url-template = "${responses.book_git}/edit/main/pt/{path}"
+CNAMES = ["${responses.book_domain_name}"]
+additional-css = ["theme/css/style.css", "theme/css/mdbook-admonish.css"]
+additional-js = ["theme/js/script.js"]
+
+[[output.i18n.translations]]
+language = "${responses.book_translations_language}"
+title = "${responses.book_translations_title}"
+src = "src/translations/${responses.book_translations_language}"
+
+[output.html.search]
+limit-results = 20
+use-boolean-and = true
+boost-title = 2
+boost-hierarchy = 2
+boost-paragraph = 1
+expand = true
+heading-split-level = 2
+
+[preprocessor]
+
+[preprocessor.admonish]
+command = "mdbook-admonish"
+assets_version = "2.0.0" # do not edit: managed by "mdbook-admonish install"
+
+[output.html.fold]
+enable = true    # whether or not to enable section folding
+level = 0         # the depth to start folding
