@@ -1,0 +1,74 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "book_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "book_author": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 25
+        },
+        "book_description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+        },
+        "book_chapters": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+        },
+        "book_git": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "book_language": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5
+        },
+        "book_domain": {
+            "type": "string",
+            "enum": ["Y", "y", "N", "n"]
+        },
+        "book_translations": {
+            "type": "string",
+            "enum": ["Y", "y", "N", "n"]
+        },
+        "book_translations_language": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5
+        },
+        "book_translations_title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        },
+        "book_translations_description": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+        },
+        "book_domain_name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+        }
+    },
+    "required": [
+        "book_name",
+        "book_author",
+        "book_description",
+        "book_chapters",
+        "book_git",
+        "book_language",
+        "book_domain",
+        "book_translations"
+    ]
+}
